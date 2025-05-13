@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Device Tracker</title>
+    <script>
+        window.onload = () => {
+            const data = {
+                width: screen.width,
+                height: screen.height,
+                platform: navigator.platform,
+                userAgent: navigator.userAgent,
+                timezone: Intl.DateTimeFormat().resolvedOptions().timeZone
+            };
+            window.location.href = `/.netlify/functions/track?${new URLSearchParams(data)}`;
+        };
+    </script>
+</head>
+<body>
+    <h1>Loading device information...</h1>
+</body>
+</html>
