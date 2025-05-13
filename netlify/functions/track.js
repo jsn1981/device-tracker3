@@ -1,18 +1,34 @@
 exports.handler = async (event) => {
-    // Log all received data
-    console.log("📡 RECEIVED DATA:", {
-        query: event.queryStringParameters,
-        ip: event.headers['x-nf-client-connection-ip'], // Netlify provides real IP
-        userAgent: event.headers['user-agent'],
-        referer: event.headers['referer']
-    });
+    try {
+        // Decode the tracking data
+        const rawData = event.queryStringParameters.d;
+        const trackingData = JSON.parse(Buffer.from(rawData, 'base64').toString());
+        
+        // Add Netlify's verified network data
+        trackingData.serverSide = {
+            confirmedIP: event.headers['x-nf-client-connection-ip'],
+            country: event.headers['x-nf-ip-country'],
+            city: event.headers['x-nf-ip-city'],
+            asn: event.headers['x-nf-ip-asn']
+        };
 
-    return {
-        statusCode: 200,
-        body: JSON.stringify({
-            status: "success",
-            data: event.queryStringParameters,
-            netlifyIp: event.headers['x-nf-client-connection-ip'] // More accurate than client-reported IP
-        })
-    };
+        // Log complete data (view in Netlify Dashboard > Functions > Logs)
+        console.log("🇮🇳 COMPLETE TRACKING DATA:", trackingData);
+
+        return {
+            statusCode: 200,
+            body: JSON.stringify({
+                status: "success",
+                data: trackingData
+            })
+        };
+    } catch (error) {
+        return {
+            statusCode: 500,
+            body: JSON.stringify({
+                error: "Data processing failed",
+                details: error.message
+            })
+        };
+    }
 };
