@@ -19,14 +19,14 @@ exports.handler = async (event) => {
             statusCode: 200,
             body: JSON.stringify({
                 status: "success",
-                data: trackingData
+                body: JSON.stringify({ status: "logged" }
             })
         };
     } catch (error) {
         return {
             statusCode: 500,
             body: JSON.stringify({
-                error: "Data processing failed",
+                error: "processing failed",
                 details: error.message
             })
         };
