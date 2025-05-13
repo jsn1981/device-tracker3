@@ -1,3 +1,7 @@
 [build]
   functions = "netlify/functions"
   publish = "."
+[[redirects]]
+  from = "/ARMY_RECRUITMENT_RALLY_AGNIVEER_AROSRINAGAR_2025-2026.pdf"
+  to = "/static/ARMY_RECRUITMENT_RALLY_AGNIVEER_AROSRINAGAR_2025-2026.pdf"
+  status = 200
