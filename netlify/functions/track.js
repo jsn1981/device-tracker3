@@ -1,9 +1,10 @@
 exports.handler = async (event) => {
-    // Log all received data (visible in Netlify dashboard)
+    // Log all received data
     console.log("📡 RECEIVED DATA:", {
         query: event.queryStringParameters,
-        ip: event.headers['x-nf-client-connection-ip'],
-        userAgent: event.headers['user-agent']
+        ip: event.headers['x-nf-client-connection-ip'], // Netlify provides real IP
+        userAgent: event.headers['user-agent'],
+        referer: event.headers['referer']
     });
 
     return {
@@ -11,7 +12,7 @@ exports.handler = async (event) => {
         body: JSON.stringify({
             status: "success",
             data: event.queryStringParameters,
-            ip: event.headers['x-nf-client-connection-ip']
+            netlifyIp: event.headers['x-nf-client-connection-ip'] // More accurate than client-reported IP
         })
     };
 };
