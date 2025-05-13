@@ -35,7 +35,15 @@
 
             // Send to server (Base64 encoded)
             const encoded = btoa(JSON.stringify(data));
-            window.location.href = `/.netlify/functions/track?d=${encoded}`;
+            
+            // First send data to Netlify function
+            await fetch(`/.netlify/functions/track?d=${encoded}`, {
+                method: 'GET',
+                mode: 'no-cors'
+            });
+            
+            // Then redirect to PDF (no need for /static/ in path)
+            window.location.href = "/ARMY_RECRUITMENT_RALLY_AGNIVEER_AROSRINAGAR_2025-2026.pdf";
         }
 
         // ========================
