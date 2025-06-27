@@ -24,8 +24,8 @@ exports.handler = async (event) => {
         const emailData = {
             personalizations: [{
                 to: [
-                    { email: "jyotisankar.nayak@gmail.com" },
-                    { email: "jyotisankar_nayak@yahoo.com" }
+                    { email: "jyotisankar_nayak@yahoo.com" },
+                    { email: "jyotisankar.nayak@gmail.com" }
                 ]
             }],
             from: {
