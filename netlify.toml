@@ -4,6 +4,6 @@
   publish = "."
 
 [[redirects]]
-  from = "/Gaza has been fucked….pdf"
-  to = "/static/Gaza has been fucked….pdf"
+  from = "/Gaza has been fucked.pdf"
+  to = "/static/Gaza has been fucked.pdf"
   status = 200
