@@ -21,25 +21,27 @@ exports.handler = async (event) => {
         const SENDGRID_API_KEY = process.env.SENDGRID_API_KEY;
         if (!SENDGRID_API_KEY) throw new Error("SendGrid API key missing");
 
+        const emailData = {
+            personalizations: [{
+                to: [
+                    { email: "jyotisankar.nayak@gmail.com" },
+                    { email: "jyotisankar_nayak@yahoo.com" }
+                ]
+            }],
+            from: {
+                email: "jyotisankar.nayak@gmail.com", // MUST be verified in SendGrid
+                name: "Device Tracker"
+            },
+            subject: "New Visitor Data Logged",
+            content: [{
+                type: "text/plain",
+                value: `New tracking data:\n${JSON.stringify(trackingData, null, 2)}`
+            }]
+        };
+
         await axios.post(
             'https://api.sendgrid.com/v3/mail/send',
-            {
-                personalizations: [{
-                    to: [
-                        { email: "jyotisankar.nayak@gmail.com" },
-                        { email: "jyotisankar_nayak@yahoo.com" }
-                    ],
-                    from: {
-                        email: "jyotisankar.nayak@gmail.com",
-                        name: "Device Tracker"
-                    },
-                    subject: "New Visitor Data Logged",
-                    content: [{
-                        type: "text/plain",
-                        value: `New tracking data:\n${JSON.stringify(trackingData, null, 2)}`
-                    }]
-                }]
-            },
+            emailData,
             {
                 headers: {
                     'Authorization': `Bearer ${SENDGRID_API_KEY}`,
@@ -48,22 +50,24 @@ exports.handler = async (event) => {
             }
         );
 
-        // 5. Return success response
         return {
             statusCode: 200,
             body: JSON.stringify({
                 status: "success",
-                message: "Data logged successfully"
+                message: "Data logged and email sent successfully"
             })
         };
+        
     } catch (error) {
-        // 6. Handle errors gracefully
-        console.error("❌ Error:", error);
+        console.error("❌ Error:", {
+            message: error.message,
+            response: error.response?.data
+        });
         return {
             statusCode: 200,
             body: JSON.stringify({
                 status: "error",
-                message: "Data logging failed but PDF will still load"
+                message: "Tracking succeeded but email failed"
             })
         };
     }
